@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: make build
+
+      - name: Run tests
+        run: make test
+
+      - name: Run examples
+        run: |
+          ./build/examples/linear_regression_example
+          ./build/examples/logistic_regression_example
+          ./build/examples/knn_example
+          ./build/examples/kmeans_example
