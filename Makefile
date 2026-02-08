@@ -22,7 +22,7 @@ LIB_OBJS = $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(LIB_SRCS))
 LIBRARY = $(LIB_DIR)/libtinycml.a
 
 # Examples
-EXAMPLES = linear_regression_example logistic_regression_example knn_example kmeans_example
+EXAMPLES = linear_regression_example logistic_regression_example knn_example kmeans_example estimator_api_example cross_validation_example pipeline_example
 EXAMPLE_BINS = $(patsubst %,$(EXAMPLES_DIR)/%,$(EXAMPLES))
 
 # Tests
