@@ -6,48 +6,61 @@
 
 # English
 
-## Future Enhancements for tinycml
+## tinycml Development Status
 
-### Neural Networks
-- [ ] Feedforward neural network with configurable layers
-- [ ] Activation functions (ReLU, sigmoid, tanh, softmax)
-- [ ] Backpropagation algorithm
-- [ ] Mini-batch gradient descent
-- [ ] Dropout regularization
+### Completed Features ✅
 
-### Decision Trees
-- [ ] ID3/C4.5 decision tree algorithm
-- [ ] Information gain / Gini impurity splitting criteria
-- [ ] Tree pruning (pre and post)
-- [ ] Random Forest ensemble
+#### Neural Networks
+- [x] Feedforward neural network with configurable layers
+- [x] Activation functions (ReLU, sigmoid, tanh, softmax)
+- [x] Backpropagation algorithm
+- [x] Mini-batch gradient descent
 
-### Additional Algorithms
-- [ ] Naive Bayes classifier (Gaussian, Multinomial)
-- [ ] Support Vector Machine (linear kernel)
-- [ ] Principal Component Analysis (PCA)
-- [ ] Linear Discriminant Analysis (LDA)
-- [ ] Regularization (L1/L2) for linear models
+#### Decision Trees & Ensembles
+- [x] Decision tree algorithm with Gini/Entropy criteria
+- [x] Tree depth and sample constraints
+- [x] Random Forest ensemble with bootstrap
+- [x] Out-of-Bag (OOB) score calculation
 
-### Performance Optimizations
+#### Additional Algorithms
+- [x] Naive Bayes classifier (Gaussian)
+- [x] Support Vector Machine (linear kernel)
+- [x] Principal Component Analysis (PCA) with whitening
+- [x] Regularization (L2) for linear models
+
+#### Features & Infrastructure
+- [x] Unified Estimator API (fit/predict/score)
+- [x] Pipeline system for chaining transformers
+- [x] Model serialization (save/load to binary file)
+- [x] Cross-validation utilities (k-fold, stratified)
+- [x] GridSearchCV for hyperparameter tuning
+- [x] Learning curves (training history to CSV)
+- [x] Verbose output and training callbacks
+- [x] Feature selection (SelectKBest, VarianceThreshold)
+- [x] Scoring functions (f_classif, f_regression, chi2, mutual_info)
+
+#### Preprocessing
+- [x] StandardScaler, MinMaxScaler
+- [x] One-hot encoding for categorical variables
+- [x] Polynomial feature expansion
+
+### Future Enhancements 🚀
+
+#### Performance Optimizations
 - [ ] SIMD optimizations for matrix operations (SSE/AVX)
 - [ ] Parallel processing with OpenMP
 - [ ] Memory pool for matrix allocations
 - [ ] Cache-friendly matrix multiplication (blocked/tiled)
 
-### Features
-- [ ] Model serialization (save/load to binary file)
-- [ ] Cross-validation utilities (k-fold, stratified)
-- [ ] Learning curves (output to CSV for plotting)
-- [ ] Early stopping for gradient descent
-- [ ] Feature importance scores
-
-### Preprocessing
-- [ ] One-hot encoding for categorical variables
-- [ ] Polynomial feature expansion
+#### Additional Features
+- [ ] Dropout regularization for neural networks
+- [ ] Linear Discriminant Analysis (LDA)
 - [ ] Missing value imputation
 - [ ] Outlier detection and handling
+- [ ] Multinomial Naive Bayes
+- [ ] Gradient Boosting
 
-### Documentation
+#### Documentation
 - [ ] Algorithm theory documentation with math
 - [ ] Performance benchmarks
 - [ ] Comparison with scikit-learn results
@@ -67,48 +80,61 @@ Contributions are welcome! Here's how you can help:
 
 # Türkçe
 
-## tinycml için Gelecek Geliştirmeler
+## tinycml Geliştirme Durumu
 
-### Sinir Ağları
-- [ ] Yapılandırılabilir katmanlara sahip ileri beslemeli sinir ağı
-- [ ] Aktivasyon fonksiyonları (ReLU, sigmoid, tanh, softmax)
-- [ ] Geri yayılım algoritması
-- [ ] Mini-batch gradient descent
-- [ ] Dropout düzenlileştirme
+### Tamamlanan Özellikler ✅
 
-### Karar Ağaçları
-- [ ] ID3/C4.5 karar ağacı algoritması
-- [ ] Bilgi kazancı / Gini safsızlığı bölme kriterleri
-- [ ] Ağaç budama (ön ve son)
-- [ ] Random Forest topluluk yöntemi
+#### Sinir Ağları
+- [x] Yapılandırılabilir katmanlara sahip ileri beslemeli sinir ağı
+- [x] Aktivasyon fonksiyonları (ReLU, sigmoid, tanh, softmax)
+- [x] Geri yayılım algoritması
+- [x] Mini-batch gradient descent
 
-### Ek Algoritmalar
-- [ ] Naive Bayes sınıflandırıcı (Gaussian, Multinomial)
-- [ ] Destek Vektör Makinesi (lineer çekirdek)
-- [ ] Temel Bileşen Analizi (PCA)
-- [ ] Lineer Diskriminant Analizi (LDA)
-- [ ] Lineer modeller için düzenlileştirme (L1/L2)
+#### Karar Ağaçları ve Topluluklar
+- [x] Gini/Entropi kriterleriyle karar ağacı algoritması
+- [x] Ağaç derinliği ve örnek kısıtlamaları
+- [x] Bootstrap ile Random Forest topluluk yöntemi
+- [x] Out-of-Bag (OOB) skor hesaplaması
 
-### Performans Optimizasyonları
+#### Ek Algoritmalar
+- [x] Naive Bayes sınıflandırıcı (Gaussian)
+- [x] Destek Vektör Makinesi (lineer çekirdek)
+- [x] Beyazlatma ile Temel Bileşen Analizi (PCA)
+- [x] Lineer modeller için düzenlileştirme (L2)
+
+#### Özellikler ve Altyapı
+- [x] Birleşik Estimator API'si (fit/predict/score)
+- [x] Dönüştürücüleri zincirleme için Pipeline sistemi
+- [x] Model serileştirme (ikili dosyaya kaydet/yükle)
+- [x] Çapraz doğrulama araçları (k-katlı, katmanlı)
+- [x] Hiperparametre ayarı için GridSearchCV
+- [x] Öğrenme eğrileri (eğitim geçmişini CSV'ye)
+- [x] Ayrıntılı çıktı ve eğitim callback'leri
+- [x] Özellik seçimi (SelectKBest, VarianceThreshold)
+- [x] Puanlama fonksiyonları (f_classif, f_regression, chi2, mutual_info)
+
+#### Ön İşleme
+- [x] StandardScaler, MinMaxScaler
+- [x] Kategorik değişkenler için one-hot kodlama
+- [x] Polinom özellik genişletme
+
+### Gelecek Geliştirmeler 🚀
+
+#### Performans Optimizasyonları
 - [ ] Matris işlemleri için SIMD optimizasyonları (SSE/AVX)
 - [ ] OpenMP ile paralel işleme
 - [ ] Matris ayırmaları için bellek havuzu
 - [ ] Önbellek dostu matris çarpımı (bloklu/döşemeli)
 
-### Özellikler
-- [ ] Model serileştirme (ikili dosyaya kaydet/yükle)
-- [ ] Çapraz doğrulama araçları (k-katlı, katmanlı)
-- [ ] Öğrenme eğrileri (grafik çizimi için CSV çıktısı)
-- [ ] Gradient descent için erken durdurma
-- [ ] Özellik önem puanları
-
-### Ön İşleme
-- [ ] Kategorik değişkenler için one-hot kodlama
-- [ ] Polinom özellik genişletme
+#### Ek Özellikler
+- [ ] Sinir ağları için Dropout düzenlileştirme
+- [ ] Lineer Diskriminant Analizi (LDA)
 - [ ] Eksik değer doldurma
 - [ ] Aykırı değer tespiti ve işleme
+- [ ] Multinomial Naive Bayes
+- [ ] Gradient Boosting
 
-### Dokümantasyon
+#### Dokümantasyon
 - [ ] Matematik ile algoritma teorisi dokümantasyonu
 - [ ] Performans karşılaştırmaları
 - [ ] scikit-learn sonuçlarıyla karşılaştırma

@@ -4,16 +4,148 @@ tinycml için tam API dokümantasyonu.
 
 ## İçindekiler
 
-1. [Matris İşlemleri](#matris-i̇şlemleri)
-2. [Vektör İşlemleri](#vektör-i̇şlemleri)
-3. [Yardımcı Fonksiyonlar](#yardımcı-fonksiyonlar)
-4. [CSV İşleme](#csv-i̇şleme)
-5. [Veri Ön İşleme](#veri-ön-i̇şleme)
-6. [Lineer Regresyon](#lineer-regresyon)
-7. [Lojistik Regresyon](#lojistik-regresyon)
-8. [k-En Yakın Komşu](#k-en-yakın-komşu)
-9. [k-Means Kümeleme](#k-means-kümeleme)
-10. [Değerlendirme Metrikleri](#değerlendirme-metrikleri)
+1. [Birleşik Estimator API'si](#birleşik-estimator-apisi)
+2. [Matris İşlemleri](#matris-işlemleri)
+3. [Vektör İşlemleri](#vektör-işlemleri)
+4. [Yardımcı Fonksiyonlar](#yardımcı-fonksiyonlar)
+5. [CSV İşleme](#csv-işleme)
+6. [Veri Ön İşleme](#veri-ön-işleme)
+7. [Pipeline](#pipeline)
+8. [Çapraz Doğrulama](#çapraz-doğrulama)
+9. [Model Seçimi](#model-seçimi)
+10. [Lineer Regresyon](#lineer-regresyon)
+11. [Lojistik Regresyon](#lojistik-regresyon)
+12. [k-En Yakın Komşu](#k-en-yakın-komşu)
+13. [Naive Bayes](#naive-bayes)
+14. [Karar Ağacı](#karar-ağacı)
+15. [Rastgele Orman](#rastgele-orman)
+16. [Sinir Ağı](#sinir-ağı)
+17. [k-Means Kümeleme](#k-means-kümeleme)
+18. [PCA](#pca)
+19. [Özellik Seçimi](#özellik-seçimi)
+20. [Değerlendirme Metrikleri](#değerlendirme-metrikleri)
+
+---
+
+## Birleşik Estimator API'si
+
+**Başlık Dosyası:** `estimator.h`
+
+tinycml'deki tüm modeller scikit-learn'den esinlenen tutarlı bir arayüz izler.
+
+### Temel Yapı
+
+```c
+typedef struct Estimator {
+    ModelType type;
+    TaskType task;
+    int is_fitted;
+
+    // Sanal fonksiyon tablosu
+    struct Estimator* (*fit)(struct Estimator *self, const Matrix *X, const Matrix *y);
+    Matrix* (*predict)(const struct Estimator *self, const Matrix *X);
+    Matrix* (*predict_proba)(const struct Estimator *self, const Matrix *X);
+    Matrix* (*transform)(const struct Estimator *self, const Matrix *X);
+    double (*score)(const struct Estimator *self, const Matrix *X, const Matrix *y);
+    struct Estimator* (*clone)(const struct Estimator *self);
+    void (*free)(struct Estimator *self);
+    int (*save)(const struct Estimator *self, const char *filename);
+    struct Estimator* (*load)(const char *filename);
+    void (*print_summary)(const struct Estimator *self);
+
+    // Eğitim yapılandırması
+    VerboseLevel verbose;
+    TrainingCallback callback;
+    void *callback_data;
+    TrainingHistory *history;
+} Estimator;
+```
+
+### Model Türleri
+
+```c
+typedef enum {
+    MODEL_LINEAR_REGRESSION,
+    MODEL_LOGISTIC_REGRESSION,
+    MODEL_KNN,
+    MODEL_KMEANS,
+    MODEL_NAIVE_BAYES,
+    MODEL_DECISION_TREE,
+    MODEL_RANDOM_FOREST,
+    MODEL_NEURAL_NETWORK,
+    MODEL_SVM,
+    MODEL_PCA,
+    MODEL_FEATURE_SELECTOR
+} ModelType;
+```
+
+### Görev Türleri
+
+```c
+typedef enum {
+    TASK_REGRESSION,
+    TASK_CLASSIFICATION,
+    TASK_CLUSTERING,
+    TASK_TRANSFORMATION
+} TaskType;
+```
+
+### Ayrıntı Seviyeleri
+
+```c
+typedef enum {
+    VERBOSE_SILENT = 0,    // Çıktı yok
+    VERBOSE_MINIMAL = 1,   // Sadece son sonuç
+    VERBOSE_PROGRESS = 2,  // İlerleme çubuğu / periyodik güncellemeler
+    VERBOSE_DETAILED = 3   // Her epoch
+} VerboseLevel;
+```
+
+### Eğitim Geçmişi
+
+```c
+typedef struct {
+    double *loss_history;
+    double *metric_history;
+    size_t n_epochs;
+    size_t capacity;
+    int converged;
+    size_t best_epoch;
+} TrainingHistory;
+
+TrainingHistory* training_history_alloc(size_t initial_capacity);
+void training_history_append(TrainingHistory *history, double loss, double metric);
+void training_history_free(TrainingHistory *history);
+int training_history_save_csv(const TrainingHistory *history, const char *filename);
+```
+
+### Kullanım Örneği
+
+```c
+#include "estimator.h"
+#include "linear_regression.h"
+
+// Model oluştur
+LinearRegression *model = linear_regression_create(LINREG_SOLVER_CLOSED);
+
+// Ayrıntılı çıktıyı etkinleştir
+model->base.verbose = VERBOSE_PROGRESS;
+
+// Eğit
+model->base.fit((Estimator*)model, X_train, y_train);
+
+// Tahmin et
+Matrix *predictions = model->base.predict((Estimator*)model, X_test);
+
+// Değerlendir
+double r2 = model->base.score((Estimator*)model, X_test, y_test);
+
+// Modeli kaydet
+model->base.save((Estimator*)model, "model.bin");
+
+// Serbest bırak
+model->base.free((Estimator*)model);
+```
 
 ---
 
@@ -27,121 +159,44 @@ tinycml için tam API dokümantasyonu.
 typedef struct {
     size_t rows;    // Satır sayısı
     size_t cols;    // Sütun sayısı
-    double *data;   // Satır öncelikli veri dizisi
+    double *data;   // Satır-öncelikli veri dizisi
 } Matrix;
 ```
 
-**Bellek Düzeni:** Satır öncelikli (row-major) sıralama. (i, j) konumundaki eleman `data[i * cols + j]` adresindedir.
+**Bellek Düzeni:** Satır-öncelikli sıralama. (i, j) elemanı `data[i * cols + j]` konumundadır.
 
 ### Bellek Yönetimi
 
-#### `matrix_alloc`
 ```c
-Matrix* matrix_alloc(size_t rows, size_t cols);
+Matrix* matrix_alloc(size_t rows, size_t cols);  // Sıfırlanmış matris ayır
+void matrix_free(Matrix *m);                      // Matris belleğini serbest bırak
+Matrix* matrix_copy(const Matrix *m);             // Derin kopya oluştur
 ```
-Sıfır ile başlatılmış bir matris ayır.
-
-**Parametreler:**
-- `rows` - Satır sayısı
-- `cols` - Sütun sayısı
-
-**Döndürür:** Ayrılmış matrise işaretçi, başarısızlıkta `NULL`.
-
-**Örnek:**
-```c
-Matrix *m = matrix_alloc(3, 4);  // 3x4 sıfır matrisi
-if (m == NULL) {
-    fprintf(stderr, "Bellek ayırma başarısız\n");
-}
-```
-
-#### `matrix_free`
-```c
-void matrix_free(Matrix *m);
-```
-Matris belleğini serbest bırak. `NULL` ile çağrılması güvenlidir.
-
-#### `matrix_copy`
-```c
-Matrix* matrix_copy(const Matrix *m);
-```
-Matrisin derin kopyasını oluştur.
 
 ### Eleman Erişimi
 
-#### `matrix_get`
 ```c
 double matrix_get(const Matrix *m, size_t i, size_t j);
-```
-(i, j) konumundaki elemanı al. Debug modunda sınır kontrolü yapar.
-
-#### `matrix_set`
-```c
 void matrix_set(Matrix *m, size_t i, size_t j, double val);
 ```
-(i, j) konumundaki elemanı ayarla.
 
 ### Aritmetik İşlemler
 
-#### `matrix_add`
 ```c
-Matrix* matrix_add(const Matrix *a, const Matrix *b);
+Matrix* matrix_add(const Matrix *a, const Matrix *b);      // Eleman-bazlı toplama
+Matrix* matrix_sub(const Matrix *a, const Matrix *b);      // Eleman-bazlı çıkarma
+Matrix* matrix_mul(const Matrix *a, const Matrix *b);      // Eleman-bazlı çarpma
+Matrix* matrix_scale(const Matrix *m, double scalar);       // Skaler çarpım
+Matrix* matrix_matmul(const Matrix *a, const Matrix *b);   // Matris çarpımı
+Matrix* matrix_transpose(const Matrix *m);                  // Devrik
 ```
-Eleman bazlı toplama. Boyut uyuşmazlığında `NULL` döndürür.
 
-#### `matrix_sub`
+### Satır/Sütun İşlemleri
+
 ```c
-Matrix* matrix_sub(const Matrix *a, const Matrix *b);
+Matrix* matrix_get_rows(const Matrix *m, const size_t *indices, size_t n);
+Matrix* matrix_get_cols(const Matrix *m, const size_t *indices, size_t n);
 ```
-Eleman bazlı çıkarma.
-
-#### `matrix_mul`
-```c
-Matrix* matrix_mul(const Matrix *a, const Matrix *b);
-```
-Eleman bazlı çarpma (Hadamard çarpımı).
-
-#### `matrix_scale`
-```c
-Matrix* matrix_scale(const Matrix *m, double scalar);
-```
-Tüm elemanları skaler ile çarp.
-
-#### `matrix_matmul`
-```c
-Matrix* matrix_matmul(const Matrix *a, const Matrix *b);
-```
-Matris çarpımı. A(m×k) ve B(k×n) için C(m×n) döndürür.
-
-**Karmaşıklık:** O(m × n × k)
-
-### Dönüşümler
-
-#### `matrix_transpose`
-```c
-Matrix* matrix_transpose(const Matrix *m);
-```
-Transpoz matrisi döndür.
-
-### Yardımcılar
-
-#### `matrix_print`
-```c
-void matrix_print(const Matrix *m);
-```
-Matrisi stdout'a biçimlendirilmiş olarak yazdır.
-
-#### `matrix_fill`
-```c
-void matrix_fill(Matrix *m, double val);
-```
-Tüm elemanları sabit bir değerle doldur.
-
-#### `matrix_identity`
-```c
-Matrix* matrix_identity(size_t n);
-```
-n×n birim matris oluştur.
 
 ---
 
@@ -151,32 +206,13 @@ n×n birim matris oluştur.
 
 Vektörler (n×1) veya (1×n) matrisler olarak temsil edilir.
 
-### Fonksiyonlar
-
-#### `vector_dot`
 ```c
-double vector_dot(const Matrix *a, const Matrix *b);
+double vector_dot(const Matrix *a, const Matrix *b);   // Nokta çarpım
+double vector_norm(const Matrix *v);                    // L2 normu
+Matrix* vector_scale(const Matrix *v, double scalar);  // Skaler çarpım
+Matrix* vector_add(const Matrix *a, const Matrix *b);  // Toplama
+Matrix* vector_sub(const Matrix *a, const Matrix *b);  // Çıkarma
 ```
-İç çarpım hesapla. Herhangi bir matris şekliyle çalışır (her ikisini de düzleştirir).
-
-#### `vector_norm`
-```c
-double vector_norm(const Matrix *v);
-```
-L2 (Öklid) normu hesapla: `||v|| = sqrt(sum(v_i^2))`.
-
-#### `vector_scale`
-```c
-Matrix* vector_scale(const Matrix *v, double scalar);
-```
-Vektörü skaler ile ölçekle (`matrix_scale` için takma ad).
-
-#### `vector_add` / `vector_sub`
-```c
-Matrix* vector_add(const Matrix *a, const Matrix *b);
-Matrix* vector_sub(const Matrix *a, const Matrix *b);
-```
-Eleman bazlı vektör işlemleri.
 
 ---
 
@@ -186,61 +222,22 @@ Eleman bazlı vektör işlemleri.
 
 ### Rastgele Sayı Üretimi
 
-#### `rand_seed`
 ```c
 void rand_seed(unsigned int seed);
+double rand_uniform(void);                              // [0, 1)
+double rand_uniform_range(double min, double max);      // [min, max)
+double rand_normal(void);                               // N(0, 1)
+double rand_normal_params(double mean, double std);     // N(mean, std)
 ```
-Tekrarlanabilirlik için rastgele sayı üretecini tohumla.
-
-#### `rand_uniform`
-```c
-double rand_uniform(void);
-```
-[0, 1) aralığında düzgün dağılımlı rastgele sayı üret.
-
-#### `rand_uniform_range`
-```c
-double rand_uniform_range(double min, double max);
-```
-[min, max) aralığında düzgün dağılımlı rastgele sayı üret.
-
-#### `rand_normal`
-```c
-double rand_normal(void);
-```
-Box-Muller dönüşümü kullanarak standart normal rastgele sayı üret (ortalama=0, std=1).
-
-#### `rand_normal_params`
-```c
-double rand_normal_params(double mean, double std);
-```
-Belirtilen ortalama ve standart sapma ile normal rastgele sayı üret.
 
 ### İstatistik
 
-#### `mean`
 ```c
 double mean(const double *data, size_t n);
-```
-Aritmetik ortalama hesapla.
-
-#### `std_dev`
-```c
 double std_dev(const double *data, size_t n);
-```
-Örnek standart sapması hesapla (Bessel düzeltmesi ile).
-
-#### `variance`
-```c
 double variance(const double *data, size_t n);
-```
-Örnek varyansı hesapla.
-
-#### `shuffle_indices`
-```c
 void shuffle_indices(size_t *indices, size_t n);
 ```
-İndeks dizisi için Fisher-Yates karıştırması.
 
 ---
 
@@ -248,41 +245,10 @@ void shuffle_indices(size_t *indices, size_t n);
 
 **Başlık Dosyası:** `csv.h`
 
-### Fonksiyonlar
-
-#### `csv_load`
 ```c
 Matrix* csv_load(const char *filename, int has_header);
-```
-CSV dosyasını matrise yükle.
-
-**Parametreler:**
-- `filename` - CSV dosya yolu
-- `has_header` - İlk satır başlık ise 1 (atlanacak), değilse 0
-
-**Döndürür:** Verili matris, hatada `NULL`.
-
-**Desteklenen formatlar:**
-- Virgülle ayrılmış değerler
-- Yalnızca sayısal veri (double)
-- Unix veya Windows satır sonları
-
-**Örnek:**
-```c
-// Başlıklı CSV yükle
-Matrix *data = csv_load("data/iris.csv", 1);
-
-// Başlıksız CSV yükle
-Matrix *data = csv_load("data/sayilar.csv", 0);
-```
-
-#### `csv_save`
-```c
 int csv_save(const Matrix *m, const char *filename);
 ```
-Matrisi CSV dosyasına kaydet.
-
-**Döndürür:** Başarıda 0, hatada -1.
 
 ---
 
@@ -305,62 +271,33 @@ TrainTestSplit train_test_split(const Matrix *X, const Matrix *y,
 void train_test_split_free(TrainTestSplit *split);
 ```
 
-**Parametreler:**
-- `X` - Özellik matrisi (n_samples × n_features)
-- `y` - Hedef vektörü (n_samples × 1)
-- `test_ratio` - Test seti oranı (örn. %20 için 0.2)
-- `seed` - Tekrarlanabilirlik için rastgele tohum
-
-**Örnek:**
-```c
-TrainTestSplit split = train_test_split(X, y, 0.2, 42);
-// Eğitim için split.X_train, split.y_train kullan
-// Test için split.X_test, split.y_test kullan
-train_test_split_free(&split);
-```
-
-### Standardizasyon (Z-Skoru)
+### StandardScaler
 
 ```c
-typedef struct {
-    double *means;
-    double *stds;
-    size_t n_features;
-} Scaler;
-
-Scaler* standardize_fit(const Matrix *X);
-Matrix* standardize_transform(const Matrix *X, const Scaler *scaler);
-Matrix* standardize_fit_transform(const Matrix *X, Scaler **scaler_out);
-void scaler_free(Scaler *scaler);
+StandardScaler* standard_scaler_create(void);
+// Estimator API kullanır: fit, transform, fit_transform
 ```
 
-**Formül:** `z = (x - ortalama) / std`
-
-**Örnek:**
-```c
-Scaler *scaler = NULL;
-Matrix *X_scaled = standardize_fit_transform(X_train, &scaler);
-Matrix *X_test_scaled = standardize_transform(X_test, scaler);
-scaler_free(scaler);
-```
-
-### Min-Max Ölçekleme
+### MinMaxScaler
 
 ```c
-typedef struct {
-    double *mins;
-    double *maxs;
-    size_t n_features;
-} MinMaxScaler;
-
-MinMaxScaler* minmax_fit(const Matrix *X);
-Matrix* minmax_transform(const Matrix *X, const MinMaxScaler *scaler);
-void minmax_scaler_free(MinMaxScaler *scaler);
+MinMaxScaler* minmax_scaler_create(void);
+// Estimator API kullanır: fit, transform
 ```
 
-**Formül:** `x_scaled = (x - min) / (max - min)`
+### OneHotEncoder
 
-Özellikleri [0, 1] aralığına ölçekler.
+```c
+OneHotEncoder* one_hot_encoder_create(void);
+// Estimator API kullanır: fit, transform
+```
+
+### PolynomialFeatures
+
+```c
+PolynomialFeatures* polynomial_features_create(int degree, int include_bias);
+// Estimator API kullanır: fit, transform
+```
 
 ### Bias Sütunu
 
@@ -368,12 +305,139 @@ void minmax_scaler_free(MinMaxScaler *scaler);
 Matrix* add_bias_column(const Matrix *X);
 ```
 
-İlk sütun olarak birler sütunu ekle (regresyon kesim noktası için).
+---
 
-**Örnek:**
+## Pipeline
+
+**Başlık Dosyası:** `pipeline.h`
+
+Ön işleme adımlarını modellerle zincirleme.
+
 ```c
-// X (n × m) ise, sonuç ilk sütunu 1.0 olan (n × m+1) olur
-Matrix *X_bias = add_bias_column(X);
+typedef struct {
+    Estimator base;
+    char **step_names;
+    Estimator **steps;
+    int n_steps;
+} Pipeline;
+
+Pipeline* pipeline_create(void);
+void pipeline_add_step(Pipeline *pipe, const char *name, Estimator *step);
+Estimator* pipeline_get_step(Pipeline *pipe, const char *name);
+void pipeline_free(Pipeline *pipe);
+```
+
+### Kullanım
+
+```c
+Pipeline *pipe = pipeline_create();
+pipeline_add_step(pipe, "scaler", (Estimator*)standard_scaler_create());
+pipeline_add_step(pipe, "model", (Estimator*)linear_regression_create(LINREG_SOLVER_CLOSED));
+
+pipe->base.fit((Estimator*)pipe, X_train, y_train);
+Matrix *pred = pipe->base.predict((Estimator*)pipe, X_test);
+
+pipeline_free(pipe);
+```
+
+---
+
+## Çapraz Doğrulama
+
+**Başlık Dosyası:** `validation.h`
+
+### K-Fold
+
+```c
+typedef struct {
+    size_t **train_indices;
+    size_t **test_indices;
+    size_t *train_sizes;
+    size_t *test_sizes;
+    int n_splits;
+} KFold;
+
+KFold* kfold_create(size_t n_samples, int n_splits, int shuffle, unsigned int seed);
+void kfold_free(KFold *kf);
+```
+
+### Çapraz Doğrulama Skoru
+
+```c
+typedef struct {
+    double *train_scores;
+    double *test_scores;
+    double mean_train_score;
+    double mean_test_score;
+    double std_train_score;
+    double std_test_score;
+    int n_splits;
+} CrossValResults;
+
+CrossValResults* cross_val_score(Estimator *estimator, const Matrix *X,
+                                  const Matrix *y, int cv, int shuffle,
+                                  unsigned int seed);
+void cross_val_results_free(CrossValResults *results);
+```
+
+---
+
+## Model Seçimi
+
+**Başlık Dosyası:** `model_selection.h`
+
+### Parametre Izgarası
+
+```c
+typedef struct {
+    char **param_names;
+    int *param_types;      // 0=int, 1=double
+    void **param_values;
+    int *param_counts;
+    int n_params;
+} ParamGrid;
+
+void param_grid_init(ParamGrid *grid);
+void param_grid_add_int(ParamGrid *grid, const char *name, int *values, int count);
+void param_grid_add_double(ParamGrid *grid, const char *name, double *values, int count);
+void param_grid_free(ParamGrid *grid);
+```
+
+### GridSearchCV
+
+```c
+typedef struct {
+    Estimator base;
+    Estimator *estimator;
+    ParamGrid *param_grid;
+    int cv;
+    double best_score_;
+    int *best_params_idx;
+    Estimator *best_estimator_;
+} GridSearchCV;
+
+GridSearchCV* grid_search_cv_create(Estimator *estimator, ParamGrid *grid,
+                                     int cv, unsigned int seed);
+int grid_search_get_best_int(GridSearchCV *gs, const char *param_name);
+double grid_search_get_best_double(GridSearchCV *gs, const char *param_name);
+void grid_search_cv_free(GridSearchCV *gs);
+```
+
+### Kullanım
+
+```c
+ParamGrid grid;
+param_grid_init(&grid);
+param_grid_add_int(&grid, "max_depth", (int[]){3, 5, 10}, 3);
+
+GridSearchCV *gs = grid_search_cv_create((Estimator*)dt, &grid, 5, 42);
+gs->base.fit((Estimator*)gs, X, y);
+
+printf("En iyi skor: %.4f\n", gs->best_score_);
+printf("En iyi max_depth: %d\n", grid_search_get_best_int(gs, "max_depth"));
+
+grid_search_cv_free(gs);
+param_grid_free(&grid);
 ```
 
 ---
@@ -382,43 +446,24 @@ Matrix *X_bias = add_bias_column(X);
 
 **Başlık Dosyası:** `linear_regression.h`
 
-### Fonksiyonlar
-
-#### `linreg_fit_closed`
 ```c
-Matrix* linreg_fit_closed(const Matrix *X, const Matrix *y);
+typedef enum {
+    LINREG_SOLVER_CLOSED,
+    LINREG_SOLVER_GD
+} LinRegSolver;
+
+typedef struct {
+    Estimator base;
+    LinRegSolver solver;
+    double learning_rate;
+    int epochs;
+    Matrix *weights_;
+} LinearRegression;
+
+LinearRegression* linear_regression_create(LinRegSolver solver);
+LinearRegression* linear_regression_create_full(LinRegSolver solver,
+                                                 double lr, int epochs);
 ```
-Kapalı form çözümü (normal denklem) kullanarak lineer regresyon fit et.
-
-**Formül:** `w = (X'X)^(-1) X'y`
-
-**Parametreler:**
-- `X` - Bias sütunlu özellik matrisi (n × m)
-- `y` - Hedef vektörü (n × 1)
-
-**Döndürür:** Ağırlık vektörü (m × 1)
-
-**Not:** X bias sütunu içermelidir. Önce `add_bias_column()` kullanın.
-
-#### `linreg_fit_gd`
-```c
-Matrix* linreg_fit_gd(const Matrix *X, const Matrix *y, double lr, int epochs);
-```
-Gradient descent kullanarak lineer regresyon fit et.
-
-**Güncelleme kuralı:** `w = w - lr * X' * (X*w - y) / n`
-
-**Parametreler:**
-- `X` - Bias sütunlu özellik matrisi
-- `y` - Hedef vektörü
-- `lr` - Öğrenme oranı (örn. 0.01)
-- `epochs` - İterasyon sayısı
-
-#### `linreg_predict`
-```c
-Matrix* linreg_predict(const Matrix *X, const Matrix *weights);
-```
-Hedef değerleri tahmin et: `y_pred = X * weights`
 
 ---
 
@@ -426,41 +471,18 @@ Hedef değerleri tahmin et: `y_pred = X * weights`
 
 **Başlık Dosyası:** `logistic_regression.h`
 
-### Fonksiyonlar
-
-#### `sigmoid`
 ```c
-double sigmoid(double x);
+typedef struct {
+    Estimator base;
+    double learning_rate;
+    int epochs;
+    double l2_reg;
+    Matrix *weights_;
+} LogisticRegression;
+
+LogisticRegression* logistic_regression_create(void);
+LogisticRegression* logistic_regression_create_full(double lr, int epochs, double l2);
 ```
-Sigmoid fonksiyonu hesapla: `1 / (1 + exp(-x))`
-
-Sayısal kararlılık için taşma koruması içerir.
-
-#### `logreg_fit`
-```c
-Matrix* logreg_fit(const Matrix *X, const Matrix *y, double lr, int epochs);
-```
-İkili sınıflandırma için lojistik regresyon fit et.
-
-**Parametreler:**
-- `X` - Bias sütunlu özellik matrisi
-- `y` - İkili hedef vektörü (0 veya 1 değerleri)
-- `lr` - Öğrenme oranı
-- `epochs` - İterasyon sayısı
-
-**Gradient:** `gradient = X' * (sigmoid(X*w) - y) / n`
-
-#### `logreg_predict_proba`
-```c
-Matrix* logreg_predict_proba(const Matrix *X, const Matrix *weights);
-```
-P(y=1|x) olasılıklarını tahmin et.
-
-#### `logreg_predict`
-```c
-Matrix* logreg_predict(const Matrix *X, const Matrix *weights, double threshold);
-```
-Eşik kullanarak sınıf etiketleri (0 veya 1) tahmin et (tipik olarak 0.5).
 
 ---
 
@@ -468,45 +490,151 @@ Eşik kullanarak sınıf etiketleri (0 veya 1) tahmin et (tipik olarak 0.5).
 
 **Başlık Dosyası:** `knn.h`
 
-### Veri Yapısı
+```c
+typedef struct {
+    Estimator base;
+    int k;
+    Matrix *X_train_;
+    Matrix *y_train_;
+} KNNClassifier;
+
+KNNClassifier* knn_classifier_create(int k);
+```
+
+---
+
+## Naive Bayes
+
+**Başlık Dosyası:** `naive_bayes.h`
 
 ```c
 typedef struct {
-    Matrix *X_train;  // Eğitim özellikleri
-    Matrix *y_train;  // Eğitim etiketleri
-    int k;            // Komşu sayısı
-} KNNModel;
+    Estimator base;
+    double *class_priors_;
+    double *means_;
+    double *variances_;
+    int n_classes_;
+    int n_features_;
+} GaussianNB;
+
+GaussianNB* gaussian_nb_create(void);
 ```
 
-### Fonksiyonlar
+---
 
-#### `knn_fit`
+## Karar Ağacı
+
+**Başlık Dosyası:** `decision_tree.h`
+
 ```c
-KNNModel* knn_fit(const Matrix *X, const Matrix *y, int k);
+typedef enum {
+    CRITERION_GINI,
+    CRITERION_ENTROPY
+} SplitCriterion;
+
+typedef struct {
+    Estimator base;
+    SplitCriterion criterion;
+    int max_depth;
+    int min_samples_split;
+    int min_samples_leaf;
+    double min_impurity_decrease;
+    struct TreeNode *root_;
+} DecisionTreeClassifier;
+
+DecisionTreeClassifier* decision_tree_classifier_create(void);
+DecisionTreeClassifier* decision_tree_classifier_create_full(
+    SplitCriterion criterion, int max_depth, int min_samples_split,
+    int min_samples_leaf, double min_impurity_decrease);
 ```
-k-NN modeli oluştur (eğitim verilerini saklar).
 
-**Parametreler:**
-- `X` - Eğitim özellikleri
-- `y` - Eğitim etiketleri (double olarak sınıf indeksleri)
-- `k` - Komşu sayısı
+---
 
-#### `knn_predict`
+## Rastgele Orman
+
+**Başlık Dosyası:** `ensemble.h`
+
 ```c
-Matrix* knn_predict(const KNNModel *model, const Matrix *X);
+typedef struct {
+    Estimator base;
+    int n_estimators;
+    int max_depth;
+    int min_samples_split;
+    int min_samples_leaf;
+    int max_features;
+    int bootstrap;
+    unsigned int seed;
+    DecisionTreeClassifier **trees_;
+    double oob_score_;
+} RandomForestClassifier;
+
+RandomForestClassifier* random_forest_classifier_create(int n_estimators);
+RandomForestClassifier* random_forest_classifier_create_full(
+    int n_estimators, int max_depth, int min_samples_split,
+    int min_samples_leaf, int max_features, int bootstrap, unsigned int seed);
 ```
-Çoğunluk oyu kullanarak sınıf etiketleri tahmin et.
 
-**Algoritma:**
-1. Her test örneği için, tüm eğitim örneklerine Öklid mesafesini hesapla
-2. k en yakın komşuyu bul
-3. Komşular arasındaki çoğunluk sınıfını döndür
+### Kullanım
 
-#### `knn_free`
 ```c
-void knn_free(KNNModel *model);
+RandomForestClassifier *rf = random_forest_classifier_create_full(
+    100,    // n_estimators
+    10,     // max_depth
+    2,      // min_samples_split
+    1,      // min_samples_leaf
+    0,      // max_features (0 = sqrt)
+    1,      // bootstrap
+    42      // seed
+);
+
+rf->base.fit((Estimator*)rf, X_train, y_train);
+printf("OOB skoru: %.4f\n", rf->oob_score_);
+
+Matrix *proba = rf->base.predict_proba((Estimator*)rf, X_test);
 ```
-k-NN model belleğini serbest bırak.
+
+---
+
+## Sinir Ağı
+
+**Başlık Dosyası:** `neural_network.h`
+
+```c
+typedef enum {
+    ACTIVATION_SIGMOID,
+    ACTIVATION_TANH,
+    ACTIVATION_RELU,
+    ACTIVATION_SOFTMAX
+} ActivationType;
+
+typedef struct {
+    Estimator base;
+    size_t *layer_sizes;
+    int n_layers;
+    ActivationType hidden_activation;
+    double learning_rate;
+    int epochs;
+    int batch_size;
+    Matrix **weights_;
+    Matrix **biases_;
+} NeuralNetwork;
+
+NeuralNetwork* neural_network_create(size_t *layer_sizes, int n_layers,
+                                      ActivationType hidden_activation);
+```
+
+### Kullanım
+
+```c
+size_t layers[] = {n_features, 64, 32, n_classes};
+NeuralNetwork *nn = neural_network_create(layers, 4, ACTIVATION_RELU);
+
+nn->learning_rate = 0.001;
+nn->epochs = 100;
+nn->batch_size = 32;
+
+nn->base.fit((Estimator*)nn, X_train, y_train);
+```
 
 ---
 
@@ -514,47 +642,136 @@ k-NN model belleğini serbest bırak.
 
 **Başlık Dosyası:** `kmeans.h`
 
-### Veri Yapısı
+```c
+typedef struct {
+    Estimator base;
+    int k;
+    int max_iter;
+    unsigned int seed;
+    Matrix *centroids_;
+    double inertia_;
+} KMeans;
+
+KMeans* kmeans_create(int k);
+KMeans* kmeans_create_full(int k, int max_iter, unsigned int seed);
+```
+
+---
+
+## PCA
+
+**Başlık Dosyası:** `decomposition.h`
 
 ```c
 typedef struct {
-    Matrix *centroids;  // Küme merkezleri (k × n_features)
-    int k;              // Küme sayısı
-    int max_iter;       // Maksimum iterasyon
-} KMeansModel;
+    Estimator base;
+    int n_components;
+    int whiten;
+    double *explained_variance_;
+    double *explained_variance_ratio_;
+    Matrix *components_;
+    double *mean_;
+} PCA;
+
+PCA* pca_create(int n_components);
+PCA* pca_create_full(int n_components, int whiten);
+const double* pca_explained_variance_ratio(const PCA *pca);
+double pca_cumulative_variance(const PCA *pca, int n_components);
+Matrix* pca_inverse_transform(const PCA *pca, const Matrix *X_transformed);
 ```
 
-### Fonksiyonlar
+### Kullanım
 
-#### `kmeans_fit`
 ```c
-KMeansModel* kmeans_fit(const Matrix *X, int k, int max_iter, unsigned int seed);
+PCA *pca = pca_create(2);
+pca->base.fit((Estimator*)pca, X, NULL);
+
+Matrix *X_reduced = pca->base.transform((Estimator*)pca, X);
+
+const double *evr = pca_explained_variance_ratio(pca);
+printf("Açıklanan varyans: %.2f%%\n", (evr[0] + evr[1]) * 100);
+
+Matrix *X_reconstructed = pca_inverse_transform(pca, X_reduced);
 ```
-Lloyd algoritması kullanarak k-Means modeli fit et.
 
-**Parametreler:**
-- `X` - Veri matrisi (n_samples × n_features)
-- `k` - Küme sayısı
-- `max_iter` - Maksimum iterasyon
-- `seed` - Merkez başlatma için rastgele tohum
+---
 
-**Algoritma:**
-1. Veri noktalarından rastgele k merkez başlat
-2. Her noktayı en yakın merkeze ata
-3. Merkezleri atanan noktaların ortalaması olarak güncelle
-4. Yakınsama veya max_iter'e kadar tekrarla
+## Özellik Seçimi
 
-#### `kmeans_predict`
+**Başlık Dosyası:** `feature_selection.h`
+
+### Puanlama Fonksiyonları
+
 ```c
-Matrix* kmeans_predict(const KMeansModel *model, const Matrix *X);
-```
-Örneklere küme etiketleri ata.
+typedef enum {
+    SCORE_F_CLASSIF,
+    SCORE_F_REGRESSION,
+    SCORE_MUTUAL_INFO_CLASSIF,
+    SCORE_MUTUAL_INFO_REGRESSION,
+    SCORE_CHI2
+} ScoreFunction;
 
-#### `kmeans_free`
-```c
-void kmeans_free(KMeansModel *model);
+void f_classif(const Matrix *X, const Matrix *y, double *f_scores, double *p_values);
+void f_regression(const Matrix *X, const Matrix *y, double *f_scores, double *p_values);
+void chi2(const Matrix *X, const Matrix *y, double *chi2_scores, double *p_values);
+void mutual_info_classif(const Matrix *X, const Matrix *y, double *mi_scores, int n_neighbors);
+void mutual_info_regression(const Matrix *X, const Matrix *y, double *mi_scores, int n_neighbors);
 ```
-k-Means model belleğini serbest bırak.
+
+### SelectKBest
+
+```c
+typedef struct {
+    Estimator base;
+    ScoreFunction score_func;
+    int k;
+    double *scores_;
+    double *pvalues_;
+    int *support_;
+    int n_features_;
+    int n_features_selected_;
+} SelectKBest;
+
+SelectKBest* select_k_best_create(ScoreFunction score_func, int k);
+const double* select_k_best_get_scores(const SelectKBest *skb);
+const int* select_k_best_get_support(const SelectKBest *skb);
+```
+
+### VarianceThreshold
+
+```c
+typedef struct {
+    Estimator base;
+    double threshold;
+    double *variances_;
+    int *support_;
+    int n_features_;
+    int n_features_selected_;
+} VarianceThreshold;
+
+VarianceThreshold* variance_threshold_create(double threshold);
+const double* variance_threshold_variances(const VarianceThreshold *vt);
+const int* variance_threshold_get_support(const VarianceThreshold *vt);
+```
+
+### Kullanım
+
+```c
+// SelectKBest
+SelectKBest *skb = select_k_best_create(SCORE_F_REGRESSION, 5);
+skb->base.fit((Estimator*)skb, X, y);
+Matrix *X_selected = skb->base.transform((Estimator*)skb, X);
+
+const int *support = select_k_best_get_support(skb);
+for (int j = 0; j < skb->n_features_; j++) {
+    if (support[j]) printf("Özellik %d seçildi\n", j);
+}
+
+// VarianceThreshold
+VarianceThreshold *vt = variance_threshold_create(0.1);
+vt->base.fit((Estimator*)vt, X, NULL);
+Matrix *X_filtered = vt->base.transform((Estimator*)vt, X);
+```
 
 ---
 
@@ -564,56 +781,28 @@ k-Means model belleğini serbest bırak.
 
 ### Regresyon Metrikleri
 
-#### `mse`
 ```c
-double mse(const Matrix *y_true, const Matrix *y_pred);
+double mse(const Matrix *y_true, const Matrix *y_pred);    // Ortalama Kare Hatası
+double rmse(const Matrix *y_true, const Matrix *y_pred);   // Kök OKH
+double mae(const Matrix *y_true, const Matrix *y_pred);    // Ortalama Mutlak Hata
+double r2_score(const Matrix *y_true, const Matrix *y_pred); // R-kare
 ```
-Ortalama Kare Hatası: `(1/n) * sum((y_true - y_pred)^2)`
-
-#### `rmse`
-```c
-double rmse(const Matrix *y_true, const Matrix *y_pred);
-```
-Kök Ortalama Kare Hatası: `sqrt(MSE)`
-
-#### `mae`
-```c
-double mae(const Matrix *y_true, const Matrix *y_pred);
-```
-Ortalama Mutlak Hata: `(1/n) * sum(|y_true - y_pred|)`
 
 ### Sınıflandırma Metrikleri
 
-#### `accuracy`
 ```c
 double accuracy(const Matrix *y_true, const Matrix *y_pred);
-```
-Sınıflandırma doğruluğu: `doğru / toplam`
-
-#### `precision`
-```c
 double precision(const Matrix *y_true, const Matrix *y_pred);
-```
-İkili sınıflandırma için kesinlik: `TP / (TP + FP)`
-
-#### `recall`
-```c
 double recall(const Matrix *y_true, const Matrix *y_pred);
-```
-İkili sınıflandırma için duyarlılık: `TP / (TP + FN)`
-
-#### `f1_score`
-```c
 double f1_score(const Matrix *y_true, const Matrix *y_pred);
 ```
-F1 Skoru: `2 * (precision * recall) / (precision + recall)`
 
 ### Karışıklık Matrisi
 
 ```c
 typedef struct {
-    int tp;  // Gerçek Pozitifler
-    int tn;  // Gerçek Negatifler
+    int tp;  // Doğru Pozitifler
+    int tn;  // Doğru Negatifler
     int fp;  // Yanlış Pozitifler
     int fn;  // Yanlış Negatifler
 } ConfusionMatrix;
@@ -622,9 +811,8 @@ ConfusionMatrix confusion_matrix(const Matrix *y_true, const Matrix *y_pred);
 void confusion_matrix_print(const ConfusionMatrix *cm);
 ```
 
-**Örnek:**
+### Kümeleme Metrikleri
+
 ```c
-ConfusionMatrix cm = confusion_matrix(y_test, predictions);
-printf("Doğruluk: %.2f%%\n", (double)(cm.tp + cm.tn) / (cm.tp + cm.tn + cm.fp + cm.fn) * 100);
-confusion_matrix_print(&cm);
+double silhouette_score(const Matrix *X, const Matrix *labels);
 ```
