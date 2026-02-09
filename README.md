@@ -1,8 +1,16 @@
-# tinycml
+<p align="center">
+  <img src="assets/logo.png" alt="tinycml logo" width="300">
+</p>
 
-**Tiny C Machine Learning Library**
+<h1 align="center">tinycml</h1>
 
-[English](#english) | [Türkçe](#türkçe)
+<p align="center">
+  <strong>Tiny C Machine Learning Library</strong>
+</p>
+
+<p align="center">
+  <a href="#english">English</a> | <a href="#türkçe">Türkçe</a>
+</p>
 
 ---
 
