@@ -27,7 +27,8 @@ typedef enum {
     MODEL_RANDOM_FOREST,
     MODEL_NEURAL_NETWORK,
     MODEL_SVM,
-    MODEL_PCA
+    MODEL_PCA,
+    MODEL_FEATURE_SELECTOR
 } ModelType;
 
 /**
