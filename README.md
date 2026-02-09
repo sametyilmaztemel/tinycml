@@ -5,7 +5,7 @@
 <h1 align="center">tinycml</h1>
 
 <p align="center">
-  <strong>Tiny C Machine Learning Library</strong>
+  <strong>Makine Öğrenmesi, Saf C'nin Gücüyle</strong>
 </p>
 
 <p align="center">
@@ -16,133 +16,121 @@
 
 # English
 
-A comprehensive, zero-dependency C library implementing scikit-learn style machine learning in pure C.
+## What is tinycml?
 
-## Overview
+tinycml is a complete machine learning library written entirely in C. No Python interpreter. No virtual environments. No package managers. No runtime dependencies. Just pure, compiled machine code that runs directly on your processor.
 
-tinycml implements a wide range of machine learning algorithms in pure C (C11 standard) with zero external dependencies. It provides a unified scikit-learn style API (`fit`/`predict`/`score`) while maintaining C's advantages: instant startup, tiny binary size, and embedded system compatibility.
+**160KB. 9,700 lines. Every algorithm you can read, understand, and modify.**
 
-## Library Statistics
+## The Philosophy
 
-| Metric | Value |
-|--------|-------|
-| **Library Size** | ~160KB |
-| **Lines of Code** | ~9,700 |
-| **Dependencies** | Zero |
-| **Startup Time** | ~1ms |
-| **C Standard** | C11 |
+Modern ML frameworks hide thousands of lines of abstraction behind simple function calls. You call `model.fit()` and magic happens somewhere in a maze of Python, C++, CUDA, and vendor-specific optimizations.
 
-## Why tinycml? Advantages Over Modern ML Libraries
+tinycml takes the opposite approach: **complete transparency**. Every matrix multiplication, every gradient calculation, every backpropagation step is right there in readable C code. When you train a neural network with tinycml, you can step through every single operation with a debugger.
 
-### 🎯 Educational Value
+## What You Get
 
-| Aspect | tinycml | TensorFlow/PyTorch/scikit-learn |
-|--------|---------|--------------------------------|
-| **Code Transparency** | Every algorithm is readable, ~100-300 lines each | Thousands of lines, heavy abstractions |
-| **Dependencies** | Zero (only standard C library) | Hundreds of packages, complex environments |
-| **Understanding** | See exactly how gradient descent, backprop work | Black-box functions |
-| **Debugging** | Step through with any C debugger | Complex stack traces |
+### Complete Algorithm Suite
 
-### 🚀 Performance Characteristics
+**Regression & Classification**
+- Linear Regression — both closed-form (normal equations) and iterative (gradient descent)
+- Logistic Regression — binary classification with configurable L2 regularization
+- k-Nearest Neighbors — distance-weighted voting for classification and regression
+- Naive Bayes — Gaussian likelihood estimation
+- Decision Trees — recursive partitioning with Gini impurity or entropy splitting
+- Random Forest — bootstrap aggregation with out-of-bag error estimation
+- Support Vector Machine — linear kernel with hinge loss optimization
+- Neural Networks — fully connected layers, backpropagation, ReLU/sigmoid/tanh/softmax activations
 
-| Feature | tinycml | Python ML Libraries |
-|---------|---------|---------------------|
-| **Startup Time** | Instant (~1ms) | Seconds (import overhead) |
-| **Memory Footprint** | ~160KB binary | 100MB+ with dependencies |
-| **No GIL** | True parallelism possible | Python GIL limitations |
-| **Embedded Systems** | Runs on microcontrollers | Requires full OS |
+**Unsupervised Learning**
+- k-Means Clustering — k-means++ smart initialization, iterative centroid refinement
+- Principal Component Analysis — eigendecomposition, variance-based dimensionality reduction, optional whitening
 
-### 🔧 Use Cases Where This Library Excels
+**Feature Engineering**
+- SelectKBest — statistical feature ranking (F-test, chi-square, mutual information)
+- VarianceThreshold — automatic removal of near-constant features
+- StandardScaler — zero mean, unit variance normalization
+- MinMaxScaler — bounded range scaling
+- OneHotEncoder — categorical to binary expansion
+- PolynomialFeatures — interaction and power term generation
 
-1. **Learning ML Fundamentals**: Understand the math behind algorithms
-2. **Embedded/IoT Devices**: Run ML on resource-constrained hardware
-3. **Real-time Systems**: Predictable, low-latency inference
-4. **Custom Modifications**: Easy to extend and modify algorithms
-5. **No-dependency Environments**: Air-gapped systems, minimal containers
+**Model Infrastructure**
+- Unified Estimator API — consistent `fit`/`predict`/`score` interface across all models
+- Pipeline — chain transformers and estimators into single callable objects
+- Cross-Validation — k-fold and stratified splitting with aggregated scoring
+- GridSearchCV — exhaustive hyperparameter search with cross-validated evaluation
+- Model Serialization — binary save/load for trained models
 
-## Features
+**Evaluation Metrics**
+- Regression: MSE, RMSE, MAE, R² coefficient of determination
+- Classification: accuracy, precision, recall, F1-score, confusion matrix
+- Clustering: inertia, silhouette score
 
-### Core Infrastructure
-- **Unified Estimator API**: scikit-learn style `fit`/`predict`/`score` interface
-- **Pipeline System**: Chain preprocessing steps with models
-- **Cross-Validation**: K-Fold, Stratified K-Fold with scoring
-- **Model Selection**: GridSearchCV for hyperparameter tuning
-- **Model Serialization**: Save/load trained models to binary files
+### Technical Specifications
 
-### Supervised Learning
-- **Linear Regression** (closed-form and gradient descent)
-- **Logistic Regression** (binary classification with L2 regularization)
-- **k-Nearest Neighbors** (classification and regression)
-- **Naive Bayes** (Gaussian)
-- **Decision Tree** (classification with Gini/Entropy criteria)
-- **Random Forest** (ensemble with bootstrap, OOB score)
-- **Neural Network** (feedforward with backpropagation, multiple activations)
-- **Support Vector Machine** (linear SVM)
+| Property | Value |
+|----------|-------|
+| Binary Size | ~160KB (static library) |
+| Source Lines | ~9,700 |
+| External Dependencies | **None** — only C standard library |
+| C Standard | C11 |
+| Cold Start | <1ms |
+| Platforms | Linux, macOS, Windows, embedded systems, microcontrollers |
 
-### Unsupervised Learning
-- **k-Means Clustering** (with k-means++ initialization)
-- **PCA** (Principal Component Analysis with whitening)
+## Why C?
 
-### Feature Engineering
-- **Feature Selection**: SelectKBest, VarianceThreshold
-- **Scoring Functions**: f_classif, f_regression, chi2, mutual_info
-- **Preprocessing**: StandardScaler, MinMaxScaler, OneHotEncoder, PolynomialFeatures
+### Direct Hardware Access
+C compiles to native machine code. No interpreter. No JIT compilation. No garbage collector pauses. When you call a function, it executes immediately on the CPU.
 
-### Evaluation
-- **Regression Metrics**: MSE, RMSE, MAE, R²
-- **Classification Metrics**: Accuracy, Precision, Recall, F1, Confusion Matrix
-- **Clustering Metrics**: Inertia, Silhouette Score
+### Predictable Performance
+Every operation has deterministic timing. No hidden memory allocations. No background threads. No surprises. Critical for real-time systems, embedded devices, and latency-sensitive applications.
+
+### Universal Portability
+C runs everywhere: x86, ARM, RISC-V, microcontrollers, mainframes. If it has a C compiler, tinycml runs on it. Cross-compile for your target and deploy.
+
+### Complete Control
+You own the memory layout. You control the cache behavior. You decide when allocations happen. When you need to optimize, every byte is accessible.
+
+### Minimal Footprint
+160KB for a complete ML toolkit. Deploy on resource-constrained devices where Python environments are impossible. Run inference on microcontrollers with kilobytes of RAM.
 
 ## Building
 
-### Prerequisites
-
-- C11 compatible compiler (GCC, Clang, MSVC)
+### Requirements
+- C11 compatible compiler (GCC 4.7+, Clang 3.1+, MSVC 2015+)
 - Make (optional, for convenience)
 
-### Quick Start
+### Compile
 
 ```bash
-# Clone the repository
 git clone https://github.com/sametyilmaztemel/tinycml.git
 cd tinycml
 
-# Build everything
-make
+make          # Build everything
+make test     # Run test suite
+make clean    # Remove build artifacts
+```
 
-# Run tests
-make test
+### Run Examples
 
-# Run examples
+```bash
 ./build/examples/linear_regression_example
-./build/examples/random_forest_example
 ./build/examples/neural_network_example
+./build/examples/random_forest_example
 ./build/examples/pca_example
 ./build/examples/feature_selection_example
 ```
 
-### Build Options
+## Usage
 
-```bash
-make build     # Build library, examples, and tests
-make library   # Build only the static library
-make examples  # Build example programs
-make tests     # Build test programs
-make test      # Build and run all tests
-make clean     # Remove build artifacts
-```
+### Basic Pattern
 
-## Usage Guide
-
-### The Unified Estimator API
-
-All models in tinycml follow a consistent interface inspired by scikit-learn:
+Every model follows the same interface:
 
 ```c
-#include "estimator.h"
 #include "linear_regression.h"
 
-// Create model
+// Create
 LinearRegression *model = linear_regression_create(LINREG_SOLVER_CLOSED);
 
 // Train
@@ -154,103 +142,27 @@ Matrix *predictions = model->base.predict((Estimator*)model, X_test);
 // Evaluate
 double r2 = model->base.score((Estimator*)model, X_test, y_test);
 
-// Free
+// Clean up
 model->base.free((Estimator*)model);
 ```
 
-### Pipeline: Chain Preprocessing with Models
+### Pipeline
+
+Chain preprocessing and models:
 
 ```c
 #include "pipeline.h"
 #include "preprocessing.h"
-#include "linear_regression.h"
-
-// Create pipeline with preprocessing + model
-Pipeline *pipe = pipeline_create();
-pipeline_add_step(pipe, "scaler", (Estimator*)standard_scaler_create());
-pipeline_add_step(pipe, "model", (Estimator*)linear_regression_create(LINREG_SOLVER_CLOSED));
-
-// Fit entire pipeline
-pipe->base.fit((Estimator*)pipe, X_train, y_train);
-
-// Predict (automatically applies all transformations)
-Matrix *pred = pipe->base.predict((Estimator*)pipe, X_test);
-
-// Score
-double score = pipe->base.score((Estimator*)pipe, X_test, y_test);
-
-pipeline_free(pipe);
-```
-
-### Cross-Validation
-
-```c
-#include "validation.h"
 #include "logistic_regression.h"
 
-LogisticRegression *model = logistic_regression_create_full(0.01, 1000, 0.0);
+Pipeline *pipe = pipeline_create();
+pipeline_add_step(pipe, "scaler", (Estimator*)standard_scaler_create());
+pipeline_add_step(pipe, "model", (Estimator*)logistic_regression_create());
 
-// 5-fold cross-validation
-CrossValResults *cv = cross_val_score((Estimator*)model, X, y, 5, 1, 42);
+pipe->base.fit((Estimator*)pipe, X_train, y_train);
+Matrix *predictions = pipe->base.predict((Estimator*)pipe, X_test);
 
-printf("Mean accuracy: %.4f (+/- %.4f)\n", cv->mean_test_score, cv->std_test_score);
-
-cross_val_results_free(cv);
-model->base.free((Estimator*)model);
-```
-
-### Hyperparameter Tuning with GridSearchCV
-
-```c
-#include "model_selection.h"
-#include "decision_tree.h"
-
-// Define parameter grid
-ParamGrid grid;
-param_grid_init(&grid);
-param_grid_add_int(&grid, "max_depth", (int[]){3, 5, 10}, 3);
-param_grid_add_int(&grid, "min_samples_split", (int[]){2, 5, 10}, 3);
-
-// Create GridSearchCV
-DecisionTreeClassifier *dt = decision_tree_classifier_create();
-GridSearchCV *gs = grid_search_cv_create((Estimator*)dt, &grid, 5, 42);
-
-// Fit (searches all parameter combinations)
-gs->base.fit((Estimator*)gs, X, y);
-
-printf("Best score: %.4f\n", gs->best_score_);
-printf("Best max_depth: %d\n", grid_search_get_best_int(gs, "max_depth"));
-
-grid_search_cv_free(gs);
-param_grid_free(&grid);
-```
-
-### Random Forest
-
-```c
-#include "ensemble.h"
-
-// Create Random Forest with 100 trees
-RandomForestClassifier *rf = random_forest_classifier_create_full(
-    100,    // n_estimators
-    10,     // max_depth
-    2,      // min_samples_split
-    1,      // min_samples_leaf
-    0,      // max_features (0 = sqrt)
-    1,      // bootstrap
-    42      // random_state
-);
-
-rf->base.fit((Estimator*)rf, X_train, y_train);
-
-double accuracy = rf->base.score((Estimator*)rf, X_test, y_test);
-printf("Test accuracy: %.4f\n", accuracy);
-printf("OOB score: %.4f\n", rf->oob_score_);
-
-// Probability predictions
-Matrix *proba = rf->base.predict_proba((Estimator*)rf, X_test);
-
-rf->base.free((Estimator*)rf);
+pipeline_free(pipe);
 ```
 
 ### Neural Network
@@ -258,42 +170,87 @@ rf->base.free((Estimator*)rf);
 ```c
 #include "neural_network.h"
 
-// Create network: input -> 64 -> 32 -> output
-size_t layer_sizes[] = {n_features, 64, 32, n_classes};
-NeuralNetwork *nn = neural_network_create(layer_sizes, 4, ACTIVATION_RELU);
+size_t layers[] = {784, 128, 64, 10};  // MNIST architecture
+NeuralNetwork *nn = neural_network_create(layers, 4, ACTIVATION_RELU);
 
-// Configure training
 nn->learning_rate = 0.001;
-nn->epochs = 100;
+nn->epochs = 50;
 nn->batch_size = 32;
 
 nn->base.fit((Estimator*)nn, X_train, y_train);
-
 double accuracy = nn->base.score((Estimator*)nn, X_test, y_test);
-printf("Neural network accuracy: %.4f\n", accuracy);
 
 nn->base.free((Estimator*)nn);
 ```
 
-### PCA (Dimensionality Reduction)
+### Random Forest
+
+```c
+#include "ensemble.h"
+
+RandomForestClassifier *rf = random_forest_classifier_create_full(
+    100,   // 100 trees
+    15,    // max depth
+    2,     // min samples to split
+    1,     // min samples per leaf
+    0,     // max features (0 = auto)
+    1,     // bootstrap
+    42     // random seed
+);
+
+rf->base.fit((Estimator*)rf, X_train, y_train);
+printf("OOB Score: %.4f\n", rf->oob_score_);
+
+rf->base.free((Estimator*)rf);
+```
+
+### Cross-Validation
+
+```c
+#include "validation.h"
+
+DecisionTreeClassifier *dt = decision_tree_classifier_create();
+CrossValResults *cv = cross_val_score((Estimator*)dt, X, y, 5, 1, 42);
+
+printf("Accuracy: %.4f (+/- %.4f)\n", cv->mean_test_score, cv->std_test_score);
+
+cross_val_results_free(cv);
+dt->base.free((Estimator*)dt);
+```
+
+### Hyperparameter Search
+
+```c
+#include "model_selection.h"
+
+ParamGrid grid;
+param_grid_init(&grid);
+param_grid_add_int(&grid, "max_depth", (int[]){5, 10, 15}, 3);
+param_grid_add_int(&grid, "min_samples_split", (int[]){2, 5, 10}, 3);
+
+DecisionTreeClassifier *dt = decision_tree_classifier_create();
+GridSearchCV *gs = grid_search_cv_create((Estimator*)dt, &grid, 5, 42);
+
+gs->base.fit((Estimator*)gs, X, y);
+printf("Best score: %.4f\n", gs->best_score_);
+
+grid_search_cv_free(gs);
+param_grid_free(&grid);
+```
+
+### PCA
 
 ```c
 #include "decomposition.h"
 
-// Reduce to 2 principal components
-PCA *pca = pca_create(2);
+PCA *pca = pca_create(2);  // Reduce to 2 dimensions
 pca->base.fit((Estimator*)pca, X, NULL);
 
-// Transform data
 Matrix *X_reduced = pca->base.transform((Estimator*)pca, X);
 
-// Check explained variance
-const double *evr = pca_explained_variance_ratio(pca);
-printf("PC1 explains %.2f%% of variance\n", evr[0] * 100);
-printf("PC2 explains %.2f%% of variance\n", evr[1] * 100);
-
-// Reconstruct original data
-Matrix *X_reconstructed = pca_inverse_transform(pca, X_reduced);
+const double *variance_ratio = pca_explained_variance_ratio(pca);
+printf("Explained variance: %.2f%%, %.2f%%\n",
+       variance_ratio[0] * 100, variance_ratio[1] * 100);
 
 pca->base.free((Estimator*)pca);
 ```
@@ -303,18 +260,14 @@ pca->base.free((Estimator*)pca);
 ```c
 #include "feature_selection.h"
 
-// SelectKBest: Keep top 5 features by F-score
-SelectKBest *selector = select_k_best_create(SCORE_F_REGRESSION, 5);
+// Keep top 10 features by F-score
+SelectKBest *selector = select_k_best_create(SCORE_F_REGRESSION, 10);
 selector->base.fit((Estimator*)selector, X, y);
 
-// Get selected feature indices
-const int *support = select_k_best_get_support(selector);
-
-// Transform data to selected features only
 Matrix *X_selected = selector->base.transform((Estimator*)selector, X);
 
-// VarianceThreshold: Remove low-variance features
-VarianceThreshold *vt = variance_threshold_create(0.1);
+// Remove near-zero variance features
+VarianceThreshold *vt = variance_threshold_create(0.01);
 vt->base.fit((Estimator*)vt, X, NULL);
 Matrix *X_filtered = vt->base.transform((Estimator*)vt, X);
 
@@ -322,177 +275,168 @@ selector->base.free((Estimator*)selector);
 vt->base.free((Estimator*)vt);
 ```
 
-### Model Serialization
+### Model Persistence
 
 ```c
-// Save trained model
-model->base.save((Estimator*)model, "model.bin");
+// Save
+model->base.save((Estimator*)model, "trained_model.bin");
 
-// Load model
-LinearRegression *loaded = (LinearRegression*)linear_regression_load("model.bin");
+// Load
+LinearRegression *loaded = (LinearRegression*)linear_regression_load("trained_model.bin");
 ```
-
-### Training Progress and Callbacks
-
-```c
-#include "estimator.h"
-
-// Enable verbose output
-model->base.verbose = VERBOSE_PROGRESS;
-
-// Or use custom callback
-void my_callback(int epoch, double loss, double metric, void *data) {
-    printf("Epoch %d: loss=%.4f, metric=%.4f\n", epoch, loss, metric);
-}
-
-estimator_set_callback((Estimator*)model, my_callback, NULL);
-
-// After training, access history
-const TrainingHistory *history = estimator_get_history((Estimator*)model);
-```
-
-## Examples
-
-The library includes comprehensive examples:
-
-| Example | Description |
-|---------|-------------|
-| `linear_regression_example` | Closed-form vs gradient descent |
-| `logistic_regression_example` | Binary classification |
-| `knn_example` | k-Nearest Neighbors |
-| `kmeans_example` | Clustering with k-means++ |
-| `estimator_api_example` | Unified API demonstration |
-| `cross_validation_example` | K-Fold cross-validation |
-| `pipeline_example` | Preprocessing + model chains |
-| `random_forest_example` | Ensemble learning |
-| `pca_example` | Dimensionality reduction |
-| `feature_selection_example` | Feature importance and selection |
 
 ## Project Structure
 
 ```
 tinycml/
-├── include/              # Public headers
-│   ├── matrix.h          # Matrix operations
-│   ├── estimator.h       # Unified estimator API
-│   ├── pipeline.h        # Pipeline system
-│   ├── validation.h      # Cross-validation
-│   ├── model_selection.h # GridSearchCV
+├── include/           # Header files
+│   ├── matrix.h       # Matrix/vector operations
+│   ├── estimator.h    # Base estimator interface
+│   ├── pipeline.h     # Pipeline system
+│   ├── validation.h   # Cross-validation
+│   ├── model_selection.h
 │   ├── linear_regression.h
 │   ├── logistic_regression.h
 │   ├── knn.h
 │   ├── kmeans.h
 │   ├── naive_bayes.h
 │   ├── decision_tree.h
-│   ├── ensemble.h        # Random Forest
+│   ├── ensemble.h
 │   ├── neural_network.h
-│   ├── decomposition.h   # PCA
+│   ├── decomposition.h
 │   ├── feature_selection.h
 │   ├── preprocessing.h
 │   └── metrics.h
-├── src/                  # Implementation files
-├── examples/             # Runnable demos
-├── tests/                # Unit tests
-├── data/                 # Sample datasets
-└── docs/                 # Documentation
+├── src/               # Implementation
+├── examples/          # Working demos
+├── tests/             # Test suite
+├── data/              # Sample datasets
+└── docs/              # API documentation
 ```
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License
 
 ---
 
 # Türkçe
 
-Saf C ile scikit-learn tarzı makine öğrenmesi uygulayan kapsamlı, sıfır bağımlılıklı bir C kütüphanesi.
+## tinycml Nedir?
 
-## Genel Bakış
+tinycml, tamamen C ile yazılmış eksiksiz bir makine öğrenmesi kütüphanesidir. Python yorumlayıcısı yok. Sanal ortam yok. Paket yöneticisi yok. Çalışma zamanı bağımlılığı yok. Sadece saf, derlenmiş makine kodu — doğrudan işlemcinizde çalışır.
 
-tinycml, geniş bir makine öğrenmesi algoritması yelpazesini saf C (C11 standardı) ile sıfır harici bağımlılık kullanarak uygular. Birleşik scikit-learn tarzı API (`fit`/`predict`/`score`) sunarken C'nin avantajlarını korur: anlık başlangıç, küçük binary boyutu ve gömülü sistem uyumluluğu.
+**160KB. 9.700 satır. Okuyabileceğiniz, anlayabileceğiniz ve değiştirebileceğiniz her algoritma.**
 
-## Kütüphane İstatistikleri
+## Felsefe
 
-| Metrik | Değer |
-|--------|-------|
-| **Kütüphane Boyutu** | ~160KB |
-| **Kod Satırı** | ~9,700 |
-| **Bağımlılık** | Sıfır |
-| **Başlangıç Süresi** | ~1ms |
-| **C Standardı** | C11 |
+Modern ML çerçeveleri, basit fonksiyon çağrılarının arkasına binlerce satır soyutlama gizler. `model.fit()` dersiniz ve Python, C++, CUDA ve üreticiye özel optimizasyonlar labirentinde bir yerlerde sihir gerçekleşir.
 
-## Özellikler
+tinycml tam tersi yaklaşımı benimser: **tam şeffaflık**. Her matris çarpımı, her gradyan hesaplaması, her geri yayılım adımı okunabilir C kodunda tam orada. tinycml ile bir sinir ağı eğittiğinizde, bir hata ayıklayıcı ile her bir işlemi adım adım izleyebilirsiniz.
 
-### Temel Altyapı
-- **Birleşik Estimator API'si**: scikit-learn tarzı `fit`/`predict`/`score` arayüzü
-- **Pipeline Sistemi**: Ön işleme adımlarını modellerle zincirleyin
-- **Çapraz Doğrulama**: K-Fold, Stratified K-Fold
-- **Model Seçimi**: Hiperparametre ayarı için GridSearchCV
-- **Model Serileştirme**: Eğitilmiş modelleri kaydet/yükle
+## Ne Elde Edersiniz
 
-### Denetimli Öğrenme
-- **Lineer Regresyon** (kapalı form ve gradient descent)
-- **Lojistik Regresyon** (L2 düzenlileştirmeli ikili sınıflandırma)
-- **k-En Yakın Komşu** (sınıflandırma ve regresyon)
-- **Naive Bayes** (Gaussian)
-- **Karar Ağacı** (Gini/Entropi kriterleriyle sınıflandırma)
-- **Rastgele Orman** (bootstrap ile topluluk, OOB skoru)
-- **Sinir Ağı** (geri yayılım ile ileri beslemeli, çoklu aktivasyonlar)
-- **Destek Vektör Makinesi** (lineer SVM)
+### Eksiksiz Algoritma Seti
 
-### Denetimsiz Öğrenme
-- **k-Means Kümeleme** (k-means++ başlatma ile)
-- **PCA** (Beyazlatma ile Temel Bileşen Analizi)
+**Regresyon ve Sınıflandırma**
+- Lineer Regresyon — hem kapalı form (normal denklemler) hem de yinelemeli (gradyan iniş)
+- Lojistik Regresyon — yapılandırılabilir L2 düzenlileştirme ile ikili sınıflandırma
+- k-En Yakın Komşu — sınıflandırma ve regresyon için mesafe ağırlıklı oylama
+- Naive Bayes — Gaussian olasılık tahmini
+- Karar Ağaçları — Gini safsızlığı veya entropi bölünmesi ile özyinelemeli bölümleme
+- Rastgele Orman — torba dışı hata tahmini ile bootstrap toplama
+- Destek Vektör Makinesi — menteşe kaybı optimizasyonu ile lineer çekirdek
+- Sinir Ağları — tam bağlı katmanlar, geri yayılım, ReLU/sigmoid/tanh/softmax aktivasyonları
 
-### Özellik Mühendisliği
-- **Özellik Seçimi**: SelectKBest, VarianceThreshold
-- **Puanlama Fonksiyonları**: f_classif, f_regression, chi2, mutual_info
-- **Ön İşleme**: StandardScaler, MinMaxScaler, OneHotEncoder, PolynomialFeatures
+**Denetimsiz Öğrenme**
+- k-Means Kümeleme — k-means++ akıllı başlatma, yinelemeli merkez iyileştirme
+- Temel Bileşen Analizi — özdeğer ayrışımı, varyans tabanlı boyut indirgeme, isteğe bağlı beyazlatma
 
-### Değerlendirme
-- **Regresyon Metrikleri**: MSE, RMSE, MAE, R²
-- **Sınıflandırma Metrikleri**: Doğruluk, Kesinlik, Duyarlılık, F1, Karışıklık Matrisi
-- **Kümeleme Metrikleri**: Atalet, Silhouette Skoru
+**Özellik Mühendisliği**
+- SelectKBest — istatistiksel özellik sıralaması (F-testi, ki-kare, karşılıklı bilgi)
+- VarianceThreshold — neredeyse sabit özelliklerin otomatik kaldırılması
+- StandardScaler — sıfır ortalama, birim varyans normalizasyonu
+- MinMaxScaler — sınırlı aralık ölçekleme
+- OneHotEncoder — kategorikten ikiliye genişleme
+- PolynomialFeatures — etkileşim ve kuvvet terimi üretimi
+
+**Model Altyapısı**
+- Birleşik Estimator API — tüm modellerde tutarlı `fit`/`predict`/`score` arayüzü
+- Pipeline — dönüştürücüleri ve tahmincileri tek çağrılabilir nesnelere zincirleyin
+- Çapraz Doğrulama — toplu puanlama ile k-katlı ve tabakalı bölme
+- GridSearchCV — çapraz doğrulamalı değerlendirme ile kapsamlı hiperparametre araması
+- Model Serileştirme — eğitilmiş modeller için ikili kaydet/yükle
+
+**Değerlendirme Metrikleri**
+- Regresyon: MSE, RMSE, MAE, R² belirleme katsayısı
+- Sınıflandırma: doğruluk, kesinlik, duyarlılık, F1-skoru, karışıklık matrisi
+- Kümeleme: atalet, silhouette skoru
+
+### Teknik Özellikler
+
+| Özellik | Değer |
+|---------|-------|
+| Binary Boyutu | ~160KB (statik kütüphane) |
+| Kaynak Satırı | ~9.700 |
+| Harici Bağımlılık | **Hiç** — sadece C standart kütüphanesi |
+| C Standardı | C11 |
+| Soğuk Başlangıç | <1ms |
+| Platformlar | Linux, macOS, Windows, gömülü sistemler, mikrodenetleyiciler |
+
+## Neden C?
+
+### Doğrudan Donanım Erişimi
+C, yerel makine koduna derlenir. Yorumlayıcı yok. JIT derlemesi yok. Çöp toplayıcı duraklamaları yok. Bir fonksiyon çağırdığınızda, CPU'da anında çalışır.
+
+### Öngörülebilir Performans
+Her işlem deterministik zamanlama ile gerçekleşir. Gizli bellek tahsisi yok. Arka plan iş parçacıkları yok. Sürpriz yok. Gerçek zamanlı sistemler, gömülü cihazlar ve gecikmeye duyarlı uygulamalar için kritik.
+
+### Evrensel Taşınabilirlik
+C her yerde çalışır: x86, ARM, RISC-V, mikrodenetleyiciler, ana bilgisayarlar. Bir C derleyicisi varsa, tinycml üzerinde çalışır. Hedefiniz için çapraz derleyin ve dağıtın.
+
+### Tam Kontrol
+Bellek düzenine sahipsiniz. Önbellek davranışını kontrol edersiniz. Tahsislerin ne zaman olacağına siz karar verirsiniz. Optimize etmeniz gerektiğinde, her bayta erişilebilir.
+
+### Minimal Ayak İzi
+Eksiksiz bir ML araç seti için 160KB. Python ortamlarının imkansız olduğu kaynak kısıtlı cihazlarda dağıtın. Kilobayt RAM'li mikrodenetleyicilerde çıkarım çalıştırın.
 
 ## Derleme
 
 ### Gereksinimler
-
-- C11 uyumlu derleyici (GCC, Clang, MSVC)
+- C11 uyumlu derleyici (GCC 4.7+, Clang 3.1+, MSVC 2015+)
 - Make (isteğe bağlı)
 
-### Hızlı Başlangıç
+### Derle
 
 ```bash
-# Depoyu klonlayın
 git clone https://github.com/sametyilmaztemel/tinycml.git
 cd tinycml
 
-# Her şeyi derleyin
-make
+make          # Her şeyi derle
+make test     # Test paketini çalıştır
+make clean    # Derleme çıktılarını temizle
+```
 
-# Testleri çalıştırın
-make test
+### Örnekleri Çalıştır
 
-# Örnekleri çalıştırın
+```bash
 ./build/examples/linear_regression_example
-./build/examples/random_forest_example
 ./build/examples/neural_network_example
+./build/examples/random_forest_example
 ./build/examples/pca_example
 ./build/examples/feature_selection_example
 ```
 
-## Kullanım Rehberi
+## Kullanım
 
-### Birleşik Estimator API'si
+### Temel Desen
 
-tinycml'deki tüm modeller scikit-learn'den esinlenen tutarlı bir arayüz izler:
+Her model aynı arayüzü takip eder:
 
 ```c
-#include "estimator.h"
 #include "linear_regression.h"
 
-// Model oluştur
+// Oluştur
 LinearRegression *model = linear_regression_create(LINREG_SOLVER_CLOSED);
 
 // Eğit
@@ -504,96 +448,27 @@ Matrix *predictions = model->base.predict((Estimator*)model, X_test);
 // Değerlendir
 double r2 = model->base.score((Estimator*)model, X_test, y_test);
 
-// Serbest bırak
+// Temizle
 model->base.free((Estimator*)model);
 ```
 
-### Pipeline: Ön İşlemeyi Modellerle Zincirleyin
+### Pipeline
+
+Ön işleme ve modelleri zincirleyin:
 
 ```c
 #include "pipeline.h"
 #include "preprocessing.h"
-#include "linear_regression.h"
-
-// Ön işleme + model ile pipeline oluştur
-Pipeline *pipe = pipeline_create();
-pipeline_add_step(pipe, "scaler", (Estimator*)standard_scaler_create());
-pipeline_add_step(pipe, "model", (Estimator*)linear_regression_create(LINREG_SOLVER_CLOSED));
-
-// Tüm pipeline'ı eğit
-pipe->base.fit((Estimator*)pipe, X_train, y_train);
-
-// Tahmin et (tüm dönüşümleri otomatik uygular)
-Matrix *pred = pipe->base.predict((Estimator*)pipe, X_test);
-
-pipeline_free(pipe);
-```
-
-### Çapraz Doğrulama
-
-```c
-#include "validation.h"
 #include "logistic_regression.h"
 
-LogisticRegression *model = logistic_regression_create_full(0.01, 1000, 0.0);
+Pipeline *pipe = pipeline_create();
+pipeline_add_step(pipe, "scaler", (Estimator*)standard_scaler_create());
+pipeline_add_step(pipe, "model", (Estimator*)logistic_regression_create());
 
-// 5-katlı çapraz doğrulama
-CrossValResults *cv = cross_val_score((Estimator*)model, X, y, 5, 1, 42);
+pipe->base.fit((Estimator*)pipe, X_train, y_train);
+Matrix *predictions = pipe->base.predict((Estimator*)pipe, X_test);
 
-printf("Ortalama doğruluk: %.4f (+/- %.4f)\n", cv->mean_test_score, cv->std_test_score);
-
-cross_val_results_free(cv);
-model->base.free((Estimator*)model);
-```
-
-### GridSearchCV ile Hiperparametre Ayarı
-
-```c
-#include "model_selection.h"
-#include "decision_tree.h"
-
-// Parametre ızgarası tanımla
-ParamGrid grid;
-param_grid_init(&grid);
-param_grid_add_int(&grid, "max_depth", (int[]){3, 5, 10}, 3);
-param_grid_add_int(&grid, "min_samples_split", (int[]){2, 5, 10}, 3);
-
-// GridSearchCV oluştur
-DecisionTreeClassifier *dt = decision_tree_classifier_create();
-GridSearchCV *gs = grid_search_cv_create((Estimator*)dt, &grid, 5, 42);
-
-// Eğit (tüm parametre kombinasyonlarını arar)
-gs->base.fit((Estimator*)gs, X, y);
-
-printf("En iyi skor: %.4f\n", gs->best_score_);
-
-grid_search_cv_free(gs);
-param_grid_free(&grid);
-```
-
-### Rastgele Orman
-
-```c
-#include "ensemble.h"
-
-// 100 ağaçlı Rastgele Orman oluştur
-RandomForestClassifier *rf = random_forest_classifier_create_full(
-    100,    // n_estimators
-    10,     // max_depth
-    2,      // min_samples_split
-    1,      // min_samples_leaf
-    0,      // max_features (0 = sqrt)
-    1,      // bootstrap
-    42      // random_state
-);
-
-rf->base.fit((Estimator*)rf, X_train, y_train);
-
-double accuracy = rf->base.score((Estimator*)rf, X_test, y_test);
-printf("Test doğruluğu: %.4f\n", accuracy);
-printf("OOB skoru: %.4f\n", rf->oob_score_);
-
-rf->base.free((Estimator*)rf);
+pipeline_free(pipe);
 ```
 
 ### Sinir Ağı
@@ -601,41 +476,87 @@ rf->base.free((Estimator*)rf);
 ```c
 #include "neural_network.h"
 
-// Ağ oluştur: girdi -> 64 -> 32 -> çıktı
-size_t layer_sizes[] = {n_features, 64, 32, n_classes};
-NeuralNetwork *nn = neural_network_create(layer_sizes, 4, ACTIVATION_RELU);
+size_t layers[] = {784, 128, 64, 10};  // MNIST mimarisi
+NeuralNetwork *nn = neural_network_create(layers, 4, ACTIVATION_RELU);
 
-// Eğitimi yapılandır
 nn->learning_rate = 0.001;
-nn->epochs = 100;
+nn->epochs = 50;
 nn->batch_size = 32;
 
 nn->base.fit((Estimator*)nn, X_train, y_train);
-
 double accuracy = nn->base.score((Estimator*)nn, X_test, y_test);
-printf("Sinir ağı doğruluğu: %.4f\n", accuracy);
 
 nn->base.free((Estimator*)nn);
 ```
 
-### PCA (Boyut İndirgeme)
+### Rastgele Orman
+
+```c
+#include "ensemble.h"
+
+RandomForestClassifier *rf = random_forest_classifier_create_full(
+    100,   // 100 ağaç
+    15,    // maksimum derinlik
+    2,     // bölmek için minimum örnek
+    1,     // yaprak başına minimum örnek
+    0,     // maksimum özellik (0 = otomatik)
+    1,     // bootstrap
+    42     // rastgele tohum
+);
+
+rf->base.fit((Estimator*)rf, X_train, y_train);
+printf("OOB Skoru: %.4f\n", rf->oob_score_);
+
+rf->base.free((Estimator*)rf);
+```
+
+### Çapraz Doğrulama
+
+```c
+#include "validation.h"
+
+DecisionTreeClassifier *dt = decision_tree_classifier_create();
+CrossValResults *cv = cross_val_score((Estimator*)dt, X, y, 5, 1, 42);
+
+printf("Doğruluk: %.4f (+/- %.4f)\n", cv->mean_test_score, cv->std_test_score);
+
+cross_val_results_free(cv);
+dt->base.free((Estimator*)dt);
+```
+
+### Hiperparametre Araması
+
+```c
+#include "model_selection.h"
+
+ParamGrid grid;
+param_grid_init(&grid);
+param_grid_add_int(&grid, "max_depth", (int[]){5, 10, 15}, 3);
+param_grid_add_int(&grid, "min_samples_split", (int[]){2, 5, 10}, 3);
+
+DecisionTreeClassifier *dt = decision_tree_classifier_create();
+GridSearchCV *gs = grid_search_cv_create((Estimator*)dt, &grid, 5, 42);
+
+gs->base.fit((Estimator*)gs, X, y);
+printf("En iyi skor: %.4f\n", gs->best_score_);
+
+grid_search_cv_free(gs);
+param_grid_free(&grid);
+```
+
+### PCA
 
 ```c
 #include "decomposition.h"
 
-// 2 temel bileşene indirge
-PCA *pca = pca_create(2);
+PCA *pca = pca_create(2);  // 2 boyuta indirge
 pca->base.fit((Estimator*)pca, X, NULL);
 
-// Veriyi dönüştür
 Matrix *X_reduced = pca->base.transform((Estimator*)pca, X);
 
-// Açıklanan varyansı kontrol et
-const double *evr = pca_explained_variance_ratio(pca);
-printf("PC1 varyansın %%%.2f'sini açıklar\n", evr[0] * 100);
-
-// Orijinal veriyi yeniden oluştur
-Matrix *X_reconstructed = pca_inverse_transform(pca, X_reduced);
+const double *variance_ratio = pca_explained_variance_ratio(pca);
+printf("Açıklanan varyans: %.2f%%, %.2f%%\n",
+       variance_ratio[0] * 100, variance_ratio[1] * 100);
 
 pca->base.free((Estimator*)pca);
 ```
@@ -645,18 +566,14 @@ pca->base.free((Estimator*)pca);
 ```c
 #include "feature_selection.h"
 
-// SelectKBest: F-skoruna göre en iyi 5 özelliği tut
-SelectKBest *selector = select_k_best_create(SCORE_F_REGRESSION, 5);
+// F-skoruna göre en iyi 10 özelliği tut
+SelectKBest *selector = select_k_best_create(SCORE_F_REGRESSION, 10);
 selector->base.fit((Estimator*)selector, X, y);
 
-// Seçilen özellik indekslerini al
-const int *support = select_k_best_get_support(selector);
-
-// Veriyi sadece seçilen özelliklere dönüştür
 Matrix *X_selected = selector->base.transform((Estimator*)selector, X);
 
-// VarianceThreshold: Düşük varyanslı özellikleri kaldır
-VarianceThreshold *vt = variance_threshold_create(0.1);
+// Sıfıra yakın varyanslı özellikleri kaldır
+VarianceThreshold *vt = variance_threshold_create(0.01);
 vt->base.fit((Estimator*)vt, X, NULL);
 Matrix *X_filtered = vt->base.transform((Estimator*)vt, X);
 
@@ -664,52 +581,45 @@ selector->base.free((Estimator*)selector);
 vt->base.free((Estimator*)vt);
 ```
 
-## Örnekler
+### Model Kalıcılığı
 
-Kütüphane kapsamlı örnekler içerir:
+```c
+// Kaydet
+model->base.save((Estimator*)model, "trained_model.bin");
 
-| Örnek | Açıklama |
-|-------|----------|
-| `linear_regression_example` | Kapalı form vs gradient descent |
-| `logistic_regression_example` | İkili sınıflandırma |
-| `knn_example` | k-En Yakın Komşu |
-| `kmeans_example` | k-means++ ile kümeleme |
-| `estimator_api_example` | Birleşik API gösterimi |
-| `cross_validation_example` | K-Fold çapraz doğrulama |
-| `pipeline_example` | Ön işleme + model zincirleri |
-| `random_forest_example` | Topluluk öğrenmesi |
-| `pca_example` | Boyut indirgeme |
-| `feature_selection_example` | Özellik önemi ve seçimi |
+// Yükle
+LinearRegression *loaded = (LinearRegression*)linear_regression_load("trained_model.bin");
+```
 
 ## Proje Yapısı
 
 ```
 tinycml/
-├── include/              # Genel başlık dosyaları
-│   ├── matrix.h          # Matris işlemleri
-│   ├── estimator.h       # Birleşik estimator API'si
-│   ├── pipeline.h        # Pipeline sistemi
-│   ├── validation.h      # Çapraz doğrulama
-│   ├── model_selection.h # GridSearchCV
+├── include/           # Başlık dosyaları
+│   ├── matrix.h       # Matris/vektör işlemleri
+│   ├── estimator.h    # Temel estimator arayüzü
+│   ├── pipeline.h     # Pipeline sistemi
+│   ├── validation.h   # Çapraz doğrulama
+│   ├── model_selection.h
 │   ├── linear_regression.h
 │   ├── logistic_regression.h
 │   ├── knn.h
 │   ├── kmeans.h
 │   ├── naive_bayes.h
 │   ├── decision_tree.h
-│   ├── ensemble.h        # Rastgele Orman
+│   ├── ensemble.h
 │   ├── neural_network.h
-│   ├── decomposition.h   # PCA
+│   ├── decomposition.h
 │   ├── feature_selection.h
 │   ├── preprocessing.h
 │   └── metrics.h
-├── src/                  # Uygulama dosyaları
-├── examples/             # Çalıştırılabilir demolar
-├── tests/                # Birim testleri
-├── data/                 # Örnek veri setleri
-└── docs/                 # Dokümantasyon
+├── src/               # Uygulama
+├── examples/          # Çalışan demolar
+├── tests/             # Test paketi
+├── data/              # Örnek veri setleri
+└── docs/              # API dokümantasyonu
 ```
 
 ## Lisans
 
-MIT Lisansı - detaylar için LICENSE dosyasına bakın.
+MIT Lisansı
