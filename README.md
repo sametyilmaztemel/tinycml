@@ -65,6 +65,54 @@ The following table presents a comparative analysis of tinycml against prevalent
 | **Step-Through Debugging** | Native GDB/LLDB | Python debugger | Complex | Complex |
 | **Algorithm Modification** | Direct source edit | Subclassing required | Custom ops required | Custom modules required |
 
+### Use Case Recommendations
+
+The following tables provide objective guidance for framework selection based on specific requirements and constraints.
+
+#### When to Choose tinycml
+
+| Use Case | Rationale |
+|----------|-----------|
+| **Embedded Systems & IoT** | 160KB footprint fits microcontrollers; no OS dependencies required |
+| **Real-Time Applications** | Deterministic execution without GC pauses; sub-millisecond latency |
+| **Educational Purposes** | Readable algorithms (100–400 lines each); step-through debugging with GDB |
+| **Air-Gapped Environments** | Single-file deployment; no package manager or network access needed |
+| **Resource-Constrained Devices** | Minimal RAM usage; static memory allocation patterns |
+| **Safety-Critical Systems** | Auditable codebase; deterministic behavior; no dynamic dependencies |
+| **Cross-Platform Deployment** | Compile once for any target with a C compiler |
+| **Algorithm Research & Modification** | Direct source access; no abstraction layers to navigate |
+
+#### When to Choose Python Frameworks (scikit-learn, TensorFlow, PyTorch)
+
+| Use Case | Rationale |
+|----------|-----------|
+| **Rapid Prototyping** | Interactive development; immediate visualization; Jupyter integration |
+| **GPU Acceleration** | CUDA/cuDNN support for large-scale neural network training |
+| **Deep Learning at Scale** | Optimized tensor operations; distributed training; TPU support |
+| **Large Dataset Processing** | Out-of-core learning; Dask/Spark integration; memory-mapped arrays |
+| **Pre-trained Models** | Extensive model zoos; transfer learning; fine-tuning capabilities |
+| **Production ML Pipelines** | MLflow, Kubeflow integration; model versioning; A/B testing infrastructure |
+| **Computer Vision & NLP** | Specialized architectures (CNNs, Transformers); pre-processing pipelines |
+| **AutoML & Hyperparameter Optimization** | Optuna, Ray Tune integration; neural architecture search |
+| **Team Collaboration** | Familiar Python ecosystem; extensive documentation; large community |
+
+#### Decision Matrix
+
+| Requirement | Recommended Framework |
+|-------------|----------------------|
+| Binary size < 1 MB | tinycml |
+| No Python runtime available | tinycml |
+| GPU training required | TensorFlow / PyTorch |
+| Microcontroller deployment | tinycml |
+| Deep neural networks (10+ layers) | TensorFlow / PyTorch |
+| Algorithm transparency for teaching | tinycml |
+| Pre-trained model fine-tuning | TensorFlow / PyTorch |
+| Deterministic, reproducible execution | tinycml |
+| Rapid experimentation with visualization | scikit-learn / PyTorch |
+| Safety-critical certification requirements | tinycml |
+| Large-scale distributed training | TensorFlow / PyTorch |
+| Minimal deployment dependencies | tinycml |
+
 ## Theoretical Foundation
 
 ### Computational Model
@@ -424,6 +472,54 @@ Aşağıdaki tablo, tinycml'in yaygın makine öğrenmesi çerçeveleriyle karş
 | **Soyutlama Katmanları** | 1–2 | 3–5 | 5–10+ | 4–8+ |
 | **Adım Adım Hata Ayıklama** | Native GDB/LLDB | Python hata ayıklayıcı | Karmaşık | Karmaşık |
 | **Algoritma Modifikasyonu** | Doğrudan kaynak düzenleme | Alt sınıflama gerekli | Özel operatörler gerekli | Özel modüller gerekli |
+
+### Kullanım Senaryosu Önerileri
+
+Aşağıdaki tablolar, belirli gereksinimler ve kısıtlamalar temelinde çerçeve seçimi için objektif rehberlik sağlar.
+
+#### tinycml Ne Zaman Tercih Edilmeli
+
+| Kullanım Senaryosu | Gerekçe |
+|--------------------|---------|
+| **Gömülü Sistemler ve IoT** | 160KB ayak izi mikrodenetleyicilere sığar; işletim sistemi bağımlılığı gerekmez |
+| **Gerçek Zamanlı Uygulamalar** | GC duraklamaları olmadan deterministik çalıştırma; milisaniye altı gecikme |
+| **Eğitim Amaçlı** | Okunabilir algoritmalar (her biri 100–400 satır); GDB ile adım adım hata ayıklama |
+| **Ağ Bağlantısız Ortamlar** | Tek dosya dağıtımı; paket yöneticisi veya ağ erişimi gerekmez |
+| **Kaynak Kısıtlı Cihazlar** | Minimal RAM kullanımı; statik bellek tahsis kalıpları |
+| **Güvenlik Kritik Sistemler** | Denetlenebilir kod tabanı; deterministik davranış; dinamik bağımlılık yok |
+| **Çapraz Platform Dağıtımı** | C derleyicisi olan herhangi bir hedef için bir kez derle |
+| **Algoritma Araştırma ve Modifikasyonu** | Doğrudan kaynak erişimi; gezinilecek soyutlama katmanı yok |
+
+#### Python Çerçeveleri Ne Zaman Tercih Edilmeli (scikit-learn, TensorFlow, PyTorch)
+
+| Kullanım Senaryosu | Gerekçe |
+|--------------------|---------|
+| **Hızlı Prototipleme** | İnteraktif geliştirme; anlık görselleştirme; Jupyter entegrasyonu |
+| **GPU Hızlandırma** | Büyük ölçekli sinir ağı eğitimi için CUDA/cuDNN desteği |
+| **Ölçekte Derin Öğrenme** | Optimize tensör işlemleri; dağıtık eğitim; TPU desteği |
+| **Büyük Veri Seti İşleme** | Bellek dışı öğrenme; Dask/Spark entegrasyonu; bellek eşlemeli diziler |
+| **Önceden Eğitilmiş Modeller** | Kapsamlı model havuzları; transfer öğrenme; ince ayar yetenekleri |
+| **Üretim ML Pipeline'ları** | MLflow, Kubeflow entegrasyonu; model versiyonlama; A/B test altyapısı |
+| **Bilgisayarlı Görü ve NLP** | Özelleşmiş mimariler (CNN'ler, Transformer'lar); ön işleme pipeline'ları |
+| **AutoML ve Hiperparametre Optimizasyonu** | Optuna, Ray Tune entegrasyonu; sinir mimarisi araması |
+| **Takım İşbirliği** | Tanıdık Python ekosistemi; kapsamlı dokümantasyon; geniş topluluk |
+
+#### Karar Matrisi
+
+| Gereksinim | Önerilen Çerçeve |
+|------------|------------------|
+| Binary boyutu < 1 MB | tinycml |
+| Python çalışma zamanı mevcut değil | tinycml |
+| GPU eğitimi gerekli | TensorFlow / PyTorch |
+| Mikrodenetleyici dağıtımı | tinycml |
+| Derin sinir ağları (10+ katman) | TensorFlow / PyTorch |
+| Eğitim için algoritma şeffaflığı | tinycml |
+| Önceden eğitilmiş model ince ayarı | TensorFlow / PyTorch |
+| Deterministik, tekrarlanabilir çalıştırma | tinycml |
+| Görselleştirme ile hızlı deneyler | scikit-learn / PyTorch |
+| Güvenlik kritik sertifikasyon gereksinimleri | tinycml |
+| Büyük ölçekli dağıtık eğitim | TensorFlow / PyTorch |
+| Minimal dağıtım bağımlılıkları | tinycml |
 
 ## Teorik Temel
 
